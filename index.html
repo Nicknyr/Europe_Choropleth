@@ -48,9 +48,17 @@
 */
 
     var ciaData = 'https://raw.githubusercontent.com/iancoleman/cia_world_factbook_api/master/data/2018-05-28_factbook.json';
+    var gdp = [];
 
     $.getJSON(ciaData, function(data) {
-      console.log(data.countries.italy.data.economy);
+      //console.log(data.countries.italy.data.economy.gdp);
+      //console.log(data.countries);
+
+      /*for(var i = 0; i < ciaData.length; i++) {
+        gdp.push(data.countries[i].data.economy.gdp);
+        console.log(gdp);
+      }
+      */
     })
 
     var mymap = L.map('mapid').setView([51.505, -0.09], 13);
@@ -66,21 +74,35 @@
       //accessToken: 'pk.eyJ1Ijoibmlja255ciIsImEiOiJjajduNGptZWQxZml2MndvNjk4eGtwbDRkIn0.L0aWwfHlFJVGa-WOj7EHaA'
     }).addTo(mymap);
 
+    function getColor(d) {
+      return d > 1000000 ? '#005824' :
+          d > 500000  ? '#238b45' :
+          d > 200000  ? '#41ae76' :
+          d > 100000  ? '#66c2a4' :
+          d > 50000   ? '#99d8c9' :
+          d > 20000   ? '#ccece6' :
+          d > 15000   ? '#edf8fb':
+                       '#fff'
+    }
+
+    function style(feature) {
+      return {
+          fillColor: getColor(countriesData.features[5].properties.gdp_md_est),
+          weight: 2,
+          opacity: 1,
+          color: 'white',
+          dashArray: '3',
+          fillOpacity: 0.7
+      };
+    }
+
+  //  L.geoJson(countriesData, {style: style}).addTo(mymap);
 
     function popup(feature, layer) {
       if (feature.properties && feature.properties.name) {
        layer.bindPopup(feature.properties.name);
       }
     };
-
-  /*  L.geoJSON(states, {
-    style: function(feature) {
-        switch (feature.properties.party) {
-            case 'Republican': return {color: "#ff0000"};
-            case 'Democrat':   return {color: "#0000ff"};
-        }
-    }
-  */
 
     L.geoJson(countriesData, {
       stroke: true,
@@ -90,13 +112,20 @@
       fillColor: "black",
       fillOpacity: 1,
       clickable: true,
+      style: style,
 
       onEachFeature: popup
 
     }).addTo(mymap);
 
-       console.log(countriesData);
-       console.log(countriesData.features[0].properties.name);
+    function getGDP(gdp) {
+      for(var i = 0; i < countriesData.features.length; i++) {
+       console.log(countriesData.features[i].properties.name + ' ' + countriesData.features[i].properties.gdp_md_est);
+       return countriesData.features[i].properties.gdp_md_est;
+      }
+    }
+
+     console.log(countriesData);
 
   </script>
 
