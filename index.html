@@ -34,18 +34,6 @@
 
   <script>
 
-/*
-  Green colors for choropleth
-  #f7fcfd
-  #e5f5f9
-  #ccece6
-  #99d8c9
-  #66c2a4
-  #41ae76
-  #238b45
-  #006d2c
-  #00441b
-*/
 
     var ciaData = 'https://raw.githubusercontent.com/iancoleman/cia_world_factbook_api/master/data/2018-05-28_factbook.json';
     var gdp = [];
@@ -87,42 +75,46 @@
 
     function style(feature) {
       return {
-          fillColor: getColor(countriesData.features[5].properties.gdp_md_est),
+          //fillColor: getColor(100000),
+          fillColor: getColor(feature.properties.gdp_md_est),
           weight: 2,
           opacity: 1,
           color: 'white',
-          dashArray: '3',
-          fillOpacity: 0.7
+          //dashArray: '3',
+          fillOpacity: 0.7,
+          stroke: true,
+          weight: .5,
+          fill: true,
+          clickable: true
       };
     }
 
-  //  L.geoJson(countriesData, {style: style}).addTo(mymap);
-
     function popup(feature, layer) {
-      if (feature.properties && feature.properties.name) {
-       layer.bindPopup(feature.properties.name);
-      }
+      if (feature.properties && feature.properties.pop_est
+                             && feature.properties.name
+                             && feature.properties.gdp_md_est) {
+
+       layer.bindPopup("<h1>" + feature.properties.name + "</h2>" + "<br>"
+                              + feature.properties.pop_est + "<br>"
+                              + feature.properties.gdp_md_est);
+     }
     };
 
     L.geoJson(countriesData, {
-      stroke: true,
-      color: "white",
-      weight: .5,
-      fill: true,
-      fillColor: "black",
-      fillOpacity: 1,
-      clickable: true,
       style: style,
 
       onEachFeature: popup
 
     }).addTo(mymap);
 
-    function getGDP(gdp) {
+    function getGDP() {
       for(var i = 0; i < countriesData.features.length; i++) {
-       console.log(countriesData.features[i].properties.name + ' ' + countriesData.features[i].properties.gdp_md_est);
-       return countriesData.features[i].properties.gdp_md_est;
+       //console.log(countriesData.features[i].properties.name + ' ' + countriesData.features[i].properties.gdp_md_est);
+       var gdpData = [];
+       gdpData.push(countriesData.features[i].properties.gdp_md_est);
+       //return countriesData.features[i].properties.gdp_md_est;
       }
+      return gdpData;
     }
 
      console.log(countriesData);
