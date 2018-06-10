@@ -25,6 +25,11 @@
     height: 600px;
   }
 
+  .info {
+    background-color: white;
+    width: auto;
+  }
+
   </style>
 
   <body>
@@ -53,14 +58,24 @@
 
     // Lat/Long for Prague
     var lat = 50.0755381;
-    var long = 14.43780049999998
+    var long = 14.43780049999998;
 
-   L.tileLayer('https://api.mapbox.com/styles/v1/nicknyr/cji6la49y48342sph9mx5qk3u/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoibmlja255ciIsImEiOiJjajduNGptZWQxZml2MndvNjk4eGtwbDRkIn0.L0aWwfHlFJVGa-WOj7EHaA', {
+  /* Custom Map I made of Europe  https://api.mapbox.com/styles/v1/nicknyr/cji6la49y48342sph9mx5qk3u/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoibmlja255ciIsImEiOiJjajduNGptZWQxZml2MndvNjk4eGtwbDRkIn0.L0aWwfHlFJVGa-WOj7EHaA
+  */
+
+  /* Mapbox light
+  https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoibmlja255ciIsImEiOiJjajduNGptZWQxZml2MndvNjk4eGtwbDRkIn0.L0aWwfHlFJVGa-WOj7EHaA
+  */
+
+   L.tileLayer('  https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoibmlja255ciIsImEiOiJjajduNGptZWQxZml2MndvNjk4eGtwbDRkIn0.L0aWwfHlFJVGa-WOj7EHaA', {
       attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-      maxZoom: 4,
-      //id: 'mapbox.light',
+      maxZoom: 3,
+      id: 'mapbox.dark',
       //accessToken: 'pk.eyJ1Ijoibmlja255ciIsImEiOiJjajduNGptZWQxZml2MndvNjk4eGtwbDRkIn0.L0aWwfHlFJVGa-WOj7EHaA'
     }).addTo(mymap);
+
+    mymap.panTo(new L.LatLng(lat, long));
+
 
     function getColor(d) {
       return d > 1000000 ? '#005824' :
@@ -75,15 +90,14 @@
 
     function style(feature) {
       return {
-          //fillColor: getColor(100000),
           fillColor: getColor(feature.properties.gdp_md_est),
-          weight: 2,
+          weight: 1,
           opacity: 1,
-          color: 'gold',
-          //dashArray: '3',
-          fillOpacity: 1,
+          color: 'snow',
+          //dashArray: '2',
+          fillOpacity: .7,
           stroke: true,
-          weight: .5,
+          weight: .7,
           fill: true,
           clickable: true
       };
@@ -100,21 +114,13 @@
      }
     };
 
-    geojson = L.geoJson(countriesData, {
-      style: style,
-
-      onEachFeature: popup
-
-    }).addTo(mymap);
-
-
     // Happens on mouse hover
     function highlightFeature(e) {
       var layer = e.target;
 
       layer.setStyle({
-          weight: 5,
-          color: 'gold',
+          weight: 2,
+          color: '#ffd32a',
           dashArray: '',
           fillOpacity: 0.7
       });
@@ -122,16 +128,19 @@
       if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
           layer.bringToFront();
       }
+
+      info.update(layer.feature.properties);
     }
 
     // Happens on mouse out
     function resetHighlight(e) {
       geojson.resetStyle(e.target);
+      info.update();
     }
 
     // Click listener that zooms to country
     function zoomToFeature(e) {
-      map.fitBounds(e.target.getBounds());
+      mymap.fitBounds(e.target.getBounds());
     }
 
     function onEachFeature(feature, layer) {
@@ -160,15 +169,34 @@
 
       // loop through our density intervals and generate a label with a colored square for each interval
       for (var i = 0; i < grades.length; i++) {
-          div.innerHTML +=
-              '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
-              grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+       div.innerHTML +=
+           '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
+           grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
       }
 
       return div;
     };
 
     legend.addTo(mymap);
+
+
+    // Custom control
+    var info = L.control();
+
+    info.onAdd = function (map) {
+        this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+        this.update();
+        return this._div;
+    };
+
+    // method that we will use to update the control based on feature properties passed
+    info.update = function (props) {
+        this._div.innerHTML = '<h4>Wealth of European Countries</h4>' +  (props ?
+            '<b>' + props.name + '</b><br />' + props.density + ' people / mi<sup>2</sup>'
+            : 'Hover over a European country');
+    };
+
+    info.addTo(mymap);
 
 
     // console.log(countriesData);
