@@ -17,6 +17,9 @@
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.45.0/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.45.0/mapbox-gl.css' rel='stylesheet' />
     <script src="europe.js"></script>
+
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display+SC|Roboto" rel="stylesheet">
+
   </head>
 
   <style>
@@ -30,13 +33,39 @@
     width: auto;
     color: white;
     padding: 1em;
+    font-family: 'Roboto', sans-serif;
+
   }
 
-  .info h4 {
-    text-align: center;
+  .info h2 {
+    padding: 0;
+    margin-top: 0;
+    font-family: 'Playfair Display SC', serif;
+  }
+
+  .info h3 {
     padding: none;
     font-weight: bold;
+    font-style: italic;
+    color: #ffd32a;
   }
+
+
+  .legend {
+    line-height: 18px;
+    /*color: #555;*/
+    color: white;
+    width: auto;
+  }
+
+  .legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+  }
+
 
   </style>
 
@@ -48,25 +77,18 @@
   <script>
 
     var geojson;
-    var ciaData = 'https://raw.githubusercontent.com/iancoleman/cia_world_factbook_api/master/data/2018-05-28_factbook.json';
-    var gdp = [];
-
-    $.getJSON(ciaData, function(data) {
-      //console.log(data.countries.italy.data.economy.gdp);
-      console.log(data.countries);
-    })
-
-    var mymap = L.map('mapid').setView([51.505, -0.09], 13);
 
     // Lat/Long for Prague
     var lat = 50.0755381;
     var long = 14.43780049999998;
 
+    var mymap = L.map('mapid').setView([lat, long], 13); //([51.505, -0.09], 13);
+
    L.tileLayer('  https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoibmlja255ciIsImEiOiJjajduNGptZWQxZml2MndvNjk4eGtwbDRkIn0.L0aWwfHlFJVGa-WOj7EHaA', {
       attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-      maxZoom: 3,
-      id: 'mapbox.dark',
-      //accessToken: 'pk.eyJ1Ijoibmlja255ciIsImEiOiJjajduNGptZWQxZml2MndvNjk4eGtwbDRkIn0.L0aWwfHlFJVGa-WOj7EHaA'
+      maxZoom: 4,
+      minZoom: 3,
+      id: 'mapbox.dark'
     }).addTo(mymap);
 
     mymap.panTo(new L.LatLng(lat, long));
@@ -142,19 +164,20 @@
     }).addTo(mymap);
 
 
+
     // Legend
     var legend = L.control({position: 'bottomright'});
 
     legend.onAdd = function (map) {
 
       var div = L.DomUtil.create('div', 'info legend'),
-          grades = [0, 10, 20, 50, 100, 200, 500, 1000],
+          grades = [15000, 20000, 50000, 100000, 200000, 500000, 1000000],
           labels = [];
 
       // loop through our density intervals and generate a label with a colored square for each interval
       for (var i = 0; i < grades.length; i++) {
        div.innerHTML +=
-           '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
+          '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
            grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
       }
 
@@ -162,6 +185,8 @@
     };
 
     legend.addTo(mymap);
+
+
 
 
     // Custom control
@@ -176,8 +201,8 @@
     // method that we will use to update the control based on feature properties passed
     info.update = function (props) {
 
-        this._div.innerHTML = '<h3>Wealth of European Countries</h3>' +  (props ?
-            '<h4>' + props.formal_en + '</h4>' + '<b>' +  'GDP in Trillions of USD: ' + '</b>' + props.gdp_md_est /1000000 + '<br />'
+        this._div.innerHTML = '<h2>Wealth of European Countries</h2>' +  (props ?
+            '<h3>' + props.formal_en + '</h3>' + '<b>' +  'GDP in Trillions of USD: ' + '</b>' + props.gdp_md_est /1000000 + '<br />'
             +'<b>' + ' GDP in Billions of USD: ' + '</b>' + props.gdp_md_est / 1000 + '<br />'
             + '<b>' + 'Economic Status:' + '</b>' + '<br />' + props.economy + '<br />'
             + '<b>' + 'Population:' + '</b>' + '<br />' + props.pop_est /1000000
@@ -188,7 +213,6 @@
 
 
     console.log(countriesData);
-    console.log(countriesData)
 
   </script>
 
