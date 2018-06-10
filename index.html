@@ -26,8 +26,16 @@
   }
 
   .info {
-    background-color: white;
+    background-color: #545454;
     width: auto;
+    color: white;
+    padding: 1em;
+  }
+
+  .info h4 {
+    text-align: center;
+    padding: none;
+    font-weight: bold;
   }
 
   </style>
@@ -45,13 +53,7 @@
 
     $.getJSON(ciaData, function(data) {
       //console.log(data.countries.italy.data.economy.gdp);
-      //console.log(data.countries);
-
-      /*for(var i = 0; i < ciaData.length; i++) {
-        gdp.push(data.countries[i].data.economy.gdp);
-        console.log(gdp);
-      }
-      */
+      console.log(data.countries);
     })
 
     var mymap = L.map('mapid').setView([51.505, -0.09], 13);
@@ -59,13 +61,6 @@
     // Lat/Long for Prague
     var lat = 50.0755381;
     var long = 14.43780049999998;
-
-  /* Custom Map I made of Europe  https://api.mapbox.com/styles/v1/nicknyr/cji6la49y48342sph9mx5qk3u/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoibmlja255ciIsImEiOiJjajduNGptZWQxZml2MndvNjk4eGtwbDRkIn0.L0aWwfHlFJVGa-WOj7EHaA
-  */
-
-  /* Mapbox light
-  https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoibmlja255ciIsImEiOiJjajduNGptZWQxZml2MndvNjk4eGtwbDRkIn0.L0aWwfHlFJVGa-WOj7EHaA
-  */
 
    L.tileLayer('  https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoibmlja255ciIsImEiOiJjajduNGptZWQxZml2MndvNjk4eGtwbDRkIn0.L0aWwfHlFJVGa-WOj7EHaA', {
       attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -103,16 +98,6 @@
       };
     }
 
-    function popup(feature, layer) {
-      if (feature.properties && feature.properties.pop_est
-                             && feature.properties.name
-                             && feature.properties.gdp_md_est) {
-
-       layer.bindPopup("<h1>" + feature.properties.name + "</h2>" + "<br>"
-                              + feature.properties.pop_est + "<br>"
-                              + feature.properties.gdp_md_est);
-     }
-    };
 
     // Happens on mouse hover
     function highlightFeature(e) {
@@ -157,7 +142,6 @@
     }).addTo(mymap);
 
 
-
     // Legend
     var legend = L.control({position: 'bottomright'});
 
@@ -191,15 +175,20 @@
 
     // method that we will use to update the control based on feature properties passed
     info.update = function (props) {
-        this._div.innerHTML = '<h4>Wealth of European Countries</h4>' +  (props ?
-            '<b>' + props.name + '</b><br />' + props.density + ' people / mi<sup>2</sup>'
+
+        this._div.innerHTML = '<h3>Wealth of European Countries</h3>' +  (props ?
+            '<h4>' + props.formal_en + '</h4>' + '<b>' +  'GDP in Trillions of USD: ' + '</b>' + props.gdp_md_est /1000000 + '<br />'
+            +'<b>' + ' GDP in Billions of USD: ' + '</b>' + props.gdp_md_est / 1000 + '<br />'
+            + '<b>' + 'Economic Status:' + '</b>' + '<br />' + props.economy + '<br />'
+            + '<b>' + 'Population:' + '</b>' + '<br />' + props.pop_est /1000000
             : 'Hover over a European country');
     };
 
     info.addTo(mymap);
 
 
-    // console.log(countriesData);
+    console.log(countriesData);
+    console.log(countriesData)
 
   </script>
 
