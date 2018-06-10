@@ -34,7 +34,7 @@
 
   <script>
 
-
+    var geojson;
     var ciaData = 'https://raw.githubusercontent.com/iancoleman/cia_world_factbook_api/master/data/2018-05-28_factbook.json';
     var gdp = [];
 
@@ -70,7 +70,7 @@
           d > 50000   ? '#99d8c9' :
           d > 20000   ? '#ccece6' :
           d > 15000   ? '#edf8fb':
-                       '#fff'
+                       'snow'
     }
 
     function style(feature) {
@@ -79,9 +79,9 @@
           fillColor: getColor(feature.properties.gdp_md_est),
           weight: 2,
           opacity: 1,
-          color: 'white',
+          color: 'gold',
           //dashArray: '3',
-          fillOpacity: 0.7,
+          fillOpacity: 1,
           stroke: true,
           weight: .5,
           fill: true,
@@ -100,24 +100,78 @@
      }
     };
 
-    L.geoJson(countriesData, {
+    geojson = L.geoJson(countriesData, {
       style: style,
 
       onEachFeature: popup
 
     }).addTo(mymap);
 
-    function getGDP() {
-      for(var i = 0; i < countriesData.features.length; i++) {
-       //console.log(countriesData.features[i].properties.name + ' ' + countriesData.features[i].properties.gdp_md_est);
-       var gdpData = [];
-       gdpData.push(countriesData.features[i].properties.gdp_md_est);
-       //return countriesData.features[i].properties.gdp_md_est;
+
+    // Happens on mouse hover
+    function highlightFeature(e) {
+      var layer = e.target;
+
+      layer.setStyle({
+          weight: 5,
+          color: 'gold',
+          dashArray: '',
+          fillOpacity: 0.7
+      });
+
+      if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+          layer.bringToFront();
       }
-      return gdpData;
     }
 
-     console.log(countriesData);
+    // Happens on mouse out
+    function resetHighlight(e) {
+      geojson.resetStyle(e.target);
+    }
+
+    // Click listener that zooms to country
+    function zoomToFeature(e) {
+      map.fitBounds(e.target.getBounds());
+    }
+
+    function onEachFeature(feature, layer) {
+      layer.on({
+          mouseover: highlightFeature,
+          mouseout: resetHighlight,
+          click: zoomToFeature
+      });
+    }
+
+    geojson = L.geoJson(countriesData, {
+        style: style,
+        onEachFeature: onEachFeature
+    }).addTo(mymap);
+
+
+
+    // Legend
+    var legend = L.control({position: 'bottomright'});
+
+    legend.onAdd = function (map) {
+
+      var div = L.DomUtil.create('div', 'info legend'),
+          grades = [0, 10, 20, 50, 100, 200, 500, 1000],
+          labels = [];
+
+      // loop through our density intervals and generate a label with a colored square for each interval
+      for (var i = 0; i < grades.length; i++) {
+          div.innerHTML +=
+              '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
+              grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+      }
+
+      return div;
+    };
+
+    legend.addTo(mymap);
+
+
+    // console.log(countriesData);
 
   </script>
 
